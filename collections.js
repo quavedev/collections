@@ -60,7 +60,7 @@ export const createCollection = ({
   schema,
   collection = {},
   helpers = {},
-  applyHooks = null,
+  apply = null,
   composers = [],
   instance = null,
 }) => {
@@ -87,8 +87,8 @@ export const createCollection = ({
       instance,
     });
 
-    if (applyHooks) {
-      applyHooks(dbCollection);
+    if (apply) {
+      apply(dbCollection);
     }
 
     Object.assign(dbCollection, compose(...composers)(collection));

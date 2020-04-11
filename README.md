@@ -84,7 +84,7 @@ export const UsersCollection = createCollection({
     },
   },
   composers: [paginable],
-  applyHooks(coll) {
+  apply(coll) {
     coll.after.insert(userAfterInsert(coll), { fetchPrevious: false });
     coll.after.update(userAfterUpdate);
   },
