@@ -9,6 +9,23 @@ Features
   - Hooks
   - Composers
   
+## Why
+Every application that connects to databases usually need the following features:
+- A way to access object instances when they come from the database: helpers
+- Provide new methods to collections: collection
+- Add a few hooks to react to changes in different collections: hooks
+- Map some types to avoid manual conversion all the time: types
+- Valid the data before persisting: schemas
+- Centralize behaviors: composers
+
+Meteor has packages for almost all these use cases but it's not easy to find the best in each case and also how to use them together, that is why we have created this package.
+ 
+We offer here a standard way for you to create your collections by configuring all these features in a function call `createCollection` using a bunch of options in a declarative way and without using Javascript classes. 
+
+We also allow you to extend your `Meteor.users` collection in the same way as any other collection.
+
+We believe we are not reinventing the wheel in this package but what we are doing is like putting together the wheels in the vehicle :).
+  
 ## Installation
 
 ```sh
@@ -38,20 +55,41 @@ meteor add dburles:collection-helpers
 
 Check the documentation of each package to learn how to use them.
 
-## Why
-Every application connection to databases usually need the same features:
-- A way to access object instances when they come from the database: helpers
-- Provide new methods to collections: collection
-- Add a few hooks to react to changes in different collections: hooks
-- Map some types to avoid manual conversion all the time: types
-- Valid the data before persisting: schemas
-- Centralize behaviors: composers
-
-Meteor has packages for almost all these use cases but this package offers you a standard way to create your collections adding all these features in a declarative way and without using Javascript classes. We also allow you to extend your `Meteor.users` collection in the same way as any other collection.
-
-We are not reinventing the wheel, we are mounting the wheels in the vehicle :).
 
 ## Usage
+
+### Meteor.users
+
+```javascript
+export const UsersCollection = createCollection({
+  instance: Meteor.users,
+  schema: UserSchema,
+  collection: {
+    isAdmin(userId) {
+      const user = userId && this.findOne(userId, { fields: { profiles: 1 } });
+      return (
+        user && user.profiles && user.profiles.includes(UserProfile.ADMIN.name)
+      );
+    },
+  },
+  helpers: {
+    toPaymentGatewayJson() {
+      return {
+        country: 'us',
+        external_id: this._id,
+        name: this.name,
+        type: 'individual',
+        email: this.email,
+      };
+    },
+  },
+  composers: [paginable],
+  applyHooks(coll) {
+    coll.after.insert(userAfterInsert(coll), { fetchPrevious: false });
+    coll.after.update(userAfterUpdate);
+  },
+});
+```
 
 ## Limitations
 
