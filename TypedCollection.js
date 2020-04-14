@@ -1,5 +1,4 @@
 import { Mongo } from 'meteor/mongo';
-import { EJSON } from 'meteor/ejson';
 
 const PREFIX_PATH_TO_MARK = '$$pathTo-';
 export const pathTo = path => `${PREFIX_PATH_TO_MARK}${path}`;
