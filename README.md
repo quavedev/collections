@@ -58,7 +58,32 @@ Check the documentation of each package to learn how to use them.
 
 ## Usage
 
-### Collection with Schema
+### Methods
+
+Example applying `collection` property:
+```javascript
+import { createCollection } from 'meteor/quave:collections';
+
+export const AddressesCollection = createCollection({
+  name: 'addresses',
+  collection: {
+    save(addressParam) {
+      const address = { ...addressParam };
+
+      if (address._id) {
+        this.update(address._id, { $set: { ...address } });
+        return address._id;
+      }
+      delete address._id;
+      return this.insert({ ...address });
+    },
+  },
+});
+```
+
+### Schema
+
+Example applying `SimpleSchema`:
 ```javascript
 import { createCollection } from 'meteor/quave:collections';
 
@@ -79,8 +104,64 @@ export const PlayersCollection = createCollection({
 });
 ```
 
-### Meteor.users
+### Composers
+Example creating a way to paginate the fetch of data using `composers`
+```javascript
+import { createCollection } from 'meteor/quave:collections';
 
+const LIMIT = 7;
+export const paginable = collection =>
+  Object.assign({}, collection, {
+    getPaginated({ selector, options = {}, paginationAction }) {
+      const { skip, limit } = paginationAction || { skip: 0, limit: LIMIT };
+      const items = this.find(selector, {
+        ...options,
+        skip,
+        limit,
+      }).fetch();
+      const total = this.find(selector).count();
+      const nextSkip = skip + limit;
+      const previousSkip = skip - limit;
+
+      return {
+        items,
+        pagination: {
+          total,
+          totalPages: parseInt(total / limit, 10) + (total % limit > 0 ? 1 : 0),
+          currentPage:
+            parseInt(skip / limit, 10) + (skip % limit > 0 ? 1 : 0) + 1,
+          ...(nextSkip < total ? { next: { skip: nextSkip, limit } } : {}),
+          ...(previousSkip >= 0
+            ? { previous: { skip: previousSkip, limit } }
+            : {}),
+        },
+      };
+    },
+  });
+
+
+export const StoresCollection = createCollection({
+  name: 'stores',
+  composers: [paginable],
+});
+
+// This probably will come from the client, using Methods, REST, or GraphQL
+// const paginationAction = {skip: XXX, limit: YYY};
+ 
+const { items, pagination } = StoresCollection.getPaginated({
+    selector: {
+     ...(search ? { name: { $regex: search, $options: 'i' } } : {}),
+    },
+    options: { sort: { updatedAt: -1 } },
+    paginationAction,
+});
+
+```
+
+### Meteor.users
+Extending Meteor.users, also using `collection`, `helpers`, `composers`, `apply`.
+
+You can use all these options also with `name` instead of `instance`. 
 ```javascript
 import { createCollection } from 'meteor/quave:collections';
 
