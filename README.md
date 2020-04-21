@@ -43,8 +43,8 @@ meteor add matb33:collection-hooks
 To use Schema options you need to install [meteor-collection2](
 https://github.com/Meteor-Community-Packages/meteor-collection2)
 ```sh
-meteor add aldeed:collection2@3.0.0
-meteor npm install --save simpl-schema
+meteor add aldeed:collection2
+meteor npm install simpl-schema
 ```
 
 To use Helpers options you need to install [meteor-collection-helpers](https://github.com/dburles/meteor-collection-helpers)
@@ -58,9 +58,32 @@ Check the documentation of each package to learn how to use them.
 
 ## Usage
 
+### Collection with Schema
+```javascript
+import { createCollection } from 'meteor/quave:collections';
+
+import SimpleSchema from 'simpl-schema';
+
+const PlayerSchema = new SimpleSchema({
+  name: {
+    type: String,
+  },
+  age: {
+    type: SimpleSchema.Integer,
+  },
+});
+
+export const PlayersCollection = createCollection({
+  name: 'players',
+  schema: PlayerSchema
+});
+```
+
 ### Meteor.users
 
 ```javascript
+import { createCollection } from 'meteor/quave:collections';
+
 export const UsersCollection = createCollection({
   instance: Meteor.users,
   schema: UserSchema,
