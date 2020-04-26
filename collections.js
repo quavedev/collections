@@ -1,21 +1,12 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 
+import { getSettings } from 'meteor/quave:settings';
+
 import { TypedCollection } from './TypedCollection';
 
 const PACKAGE_NAME = 'quave:collections';
-const settings = {
-  ...((Meteor.settings &&
-    Meteor.settings.packages &&
-    Meteor.settings.packages[PACKAGE_NAME]) ||
-    {}),
-  ...((Meteor.settings &&
-    Meteor.settings &&
-    Meteor.settings.public &&
-    Meteor.settings.public.packages &&
-    Meteor.settings.public.packages[PACKAGE_NAME]) ||
-    {}),
-};
+const settings = getSettings({packageName: PACKAGE_NAME});
 
 const { isServerOnly, isVerbose } = settings;
 
