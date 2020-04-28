@@ -7,8 +7,19 @@ const settings = getSettings({ packageName: PACKAGE_NAME });
 
 const { isVerbose } = settings;
 
+export const CustomTypes = {
+  scalarAndEjson(type) {
+    return {
+      name: type.name(),
+      description: type.description(),
+      serialize: obj => obj,
+      parseValue: obj => obj,
+    };
+  },
+};
+
 /* eslint-disable class-methods-use-this */
-export class TypeDef {
+export class CustomType {
   constructor() {
     this.register();
   }
@@ -28,6 +39,12 @@ export class TypeDef {
   name() {
     throw new Error(
       `name() needs to be implemented in ${this.constructor.name}`
+    );
+  }
+
+  toSimpleSchema() {
+    throw new Error(
+      `toSimpleSchema() needs to be implemented in ${this.constructor.name}`
     );
   }
 

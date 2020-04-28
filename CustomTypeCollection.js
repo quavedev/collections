@@ -8,17 +8,6 @@ const settings = getSettings({ packageName: PACKAGE_NAME });
 
 const { isVerbose } = settings;
 
-export const Types = {
-  scalarAndEjson(type) {
-    return {
-      name: type.name(),
-      description: type.description(),
-      serialize: obj => obj,
-      parseValue: obj => obj,
-    };
-  },
-};
-
 const lookForTypesAndApply = (definition, obj, consumeType) => {
   if (obj) {
     Object.entries(definition.fields).forEach(([key, value]) => {
@@ -66,7 +55,7 @@ const onLoadFromCollection = (definition, obj) =>
     parser.fromPersisted(value)
   );
 
-export const TypedCollection = {
+export const CustomTypeCollection = {
   createTypedCollection: (name, definition, opts) => {
     if (!definition) {
       throw new Error(`"definition" option was not found for "${name}"`);

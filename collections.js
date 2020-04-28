@@ -3,7 +3,7 @@ import { Mongo } from 'meteor/mongo';
 
 import { getSettings } from 'meteor/quave:settings';
 
-import { TypedCollection } from './TypedCollection';
+import { CustomTypeCollection } from './CustomTypeCollection';
 
 const PACKAGE_NAME = 'quave:collections';
 const settings = getSettings({ packageName: PACKAGE_NAME });
@@ -27,7 +27,7 @@ const getDbCollection = ({ name, definition, helpers, instance }) => {
       throw new Error("dbCollection is already defined, type can't be applied");
     }
 
-    return TypedCollection.createTypedCollection(name, definition, {
+    return CustomTypeCollection.createTypedCollection(name, definition, {
       helpers,
     });
   }
