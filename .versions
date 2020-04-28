@@ -1,6 +1,6 @@
 babel-compiler@7.5.3
 babel-runtime@1.5.0
-dynamic-import@0.5.1
+dynamic-import@0.5.2
 ecmascript@0.14.3
 ecmascript-runtime@0.7.0
 ecmascript-runtime-client@0.10.0
@@ -12,4 +12,5 @@ modern-browsers@0.1.5
 modules@0.15.0
 modules-runtime@0.12.0
 promise@0.11.2
-quave:collections@0.0.2
+quave:collections@0.0.4-beta.1
+quave:settings@1.0.0
