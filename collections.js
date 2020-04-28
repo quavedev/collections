@@ -6,7 +6,7 @@ import { getSettings } from 'meteor/quave:settings';
 import { TypedCollection } from './TypedCollection';
 
 const PACKAGE_NAME = 'quave:collections';
-const settings = getSettings({packageName: PACKAGE_NAME});
+const settings = getSettings({ packageName: PACKAGE_NAME });
 
 const { isServerOnly, isVerbose } = settings;
 
@@ -16,17 +16,19 @@ const { isServerOnly, isVerbose } = settings;
  * @returns {*|(function(*): *)}
  */
 const compose = (...funcs) =>
-  funcs.reduce((a, b) => (...args) => a(b(...args)), arg => arg);
+  funcs.reduce(
+    (a, b) => (...args) => a(b(...args)),
+    arg => arg
+  );
 
-const getDbCollection = ({ name, type, typeFields, helpers, instance }) => {
-  if (type) {
+const getDbCollection = ({ name, definition, helpers, instance }) => {
+  if (definition) {
     if (instance) {
       throw new Error("dbCollection is already defined, type can't be applied");
     }
 
-    return TypedCollection.createTypedCollection(name, type, {
+    return TypedCollection.createTypedCollection(name, definition, {
       helpers,
-      typeFields,
     });
   }
   let dbCollection = instance;
@@ -46,8 +48,7 @@ const getDbCollection = ({ name, type, typeFields, helpers, instance }) => {
 
 export const createCollection = ({
   name,
-  type,
-  typeFields,
+  definition,
   schema,
   collection = {},
   helpers = {},
@@ -72,8 +73,7 @@ export const createCollection = ({
     }
     const dbCollection = getDbCollection({
       name,
-      type,
-      typeFields,
+      definition,
       helpers,
       instance,
     });

@@ -3,14 +3,17 @@
 `quave:collections` is a Meteor package that allows you to create your collections in a standard way.
 
 Features
-  - Schemas
-  - Types
-  - Helpers
-  - Hooks
-  - Composers
-  
+
+- Schemas
+- Types
+- Helpers
+- Hooks
+- Composers
+
 ## Why
+
 Every application that connects to databases usually need the following features:
+
 - A way to access object instances when they come from the database: helpers
 - Provide new methods to collections: collection
 - Add a few hooks to react to changes in different collections: hooks
@@ -19,13 +22,13 @@ Every application that connects to databases usually need the following features
 - Centralize behaviors: composers
 
 Meteor has packages for almost all these use cases but it's not easy to find the best in each case and also how to use them together, that is why we have created this package.
- 
-We offer here a standard way for you to create your collections by configuring all these features in a function call `createCollection` using a bunch of options in a declarative way and without using Javascript classes. 
+
+We offer here a standard way for you to create your collections by configuring all these features in a function call `createCollection` using a bunch of options in a declarative way and without using Javascript classes.
 
 We also allow you to extend your `Meteor.users` collection in the same way as any other collection.
 
 We believe we are not reinventing the wheel in this package but what we are doing is like putting together the wheels in the vehicle :).
-  
+
 ## Installation
 
 ```sh
@@ -40,8 +43,8 @@ To use Type or Hooks options you need to install [meteor-collection-hooks](https
 meteor add matb33:collection-hooks
 ```
 
-To use Schema options you need to install [meteor-collection2](
-https://github.com/Meteor-Community-Packages/meteor-collection2)
+To use Schema options you need to install [meteor-collection2](https://github.com/Meteor-Community-Packages/meteor-collection2)
+
 ```sh
 meteor add aldeed:collection2
 meteor npm install simpl-schema
@@ -55,12 +58,12 @@ meteor add dburles:collection-helpers
 
 Check the documentation of each package to learn how to use them.
 
-
 ## Usage
 
 ### Methods
 
 Example applying `collection` property:
+
 ```javascript
 import { createCollection } from 'meteor/quave:collections';
 
@@ -84,6 +87,7 @@ export const AddressesCollection = createCollection({
 ### Schema
 
 Example applying `SimpleSchema`:
+
 ```javascript
 import { createCollection } from 'meteor/quave:collections';
 
@@ -100,12 +104,14 @@ const PlayerSchema = new SimpleSchema({
 
 export const PlayersCollection = createCollection({
   name: 'players',
-  schema: PlayerSchema
+  schema: PlayerSchema,
 });
 ```
 
 ### Composers
+
 Example creating a way to paginate the fetch of data using `composers`
+
 ```javascript
 import { createCollection } from 'meteor/quave:collections';
 
@@ -139,7 +145,6 @@ export const paginable = collection =>
     },
   });
 
-
 export const StoresCollection = createCollection({
   name: 'stores',
   composers: [paginable],
@@ -147,21 +152,22 @@ export const StoresCollection = createCollection({
 
 // This probably will come from the client, using Methods, REST, or GraphQL
 // const paginationAction = {skip: XXX, limit: YYY};
- 
-const { items, pagination } = StoresCollection.getPaginated({
-    selector: {
-     ...(search ? { name: { $regex: search, $options: 'i' } } : {}),
-    },
-    options: { sort: { updatedAt: -1 } },
-    paginationAction,
-});
 
+const { items, pagination } = StoresCollection.getPaginated({
+  selector: {
+    ...(search ? { name: { $regex: search, $options: 'i' } } : {}),
+  },
+  options: { sort: { updatedAt: -1 } },
+  paginationAction,
+});
 ```
 
 ### Meteor.users
+
 Extending Meteor.users, also using `collection`, `helpers`, `composers`, `apply`.
 
-You can use all these options also with `name` instead of `instance`. 
+You can use all these options also with `name` instead of `instance`.
+
 ```javascript
 import { createCollection } from 'meteor/quave:collections';
 

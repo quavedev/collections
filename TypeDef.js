@@ -3,7 +3,7 @@ import { EJSON } from 'meteor/ejson';
 import { getSettings } from 'meteor/quave:settings';
 
 const PACKAGE_NAME = 'quave:collections';
-const settings = getSettings({packageName: PACKAGE_NAME});
+const settings = getSettings({ packageName: PACKAGE_NAME });
 
 const { isVerbose } = settings;
 
@@ -16,15 +16,19 @@ export class TypeDef {
   register() {
     // Type is already present
     if (!EJSON._getTypes()[this.name()]) {
-      if(isVerbose) {
-        console.log(`${PACKAGE_NAME} EJSON.addType ${this.name()} from TypeDef class`);
+      if (isVerbose) {
+        console.log(
+          `${PACKAGE_NAME} EJSON.addType ${this.name()} from TypeDef class`
+        );
       }
       EJSON.addType(this.name(), json => this.fromJSONValue(json));
     }
   }
 
   name() {
-    throw new Error(`name() needs to be implemented in ${this.constructor.name}`);
+    throw new Error(
+      `name() needs to be implemented in ${this.constructor.name}`
+    );
   }
 
   description() {

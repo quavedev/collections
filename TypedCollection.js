@@ -1,31 +1,12 @@
 import { Mongo } from 'meteor/mongo';
+import { EJSON } from 'meteor/ejson';
 
-const PREFIX_PATH_TO_MARK = '$$pathTo-';
-export const pathTo = path => `${PREFIX_PATH_TO_MARK}${path}`;
+import { getSettings } from 'meteor/quave:settings';
 
-const MapperFunc = mappers => ({
-  ofType(rootType) {
-    const mapper = mappers[rootType];
-    if (!mapper) {
-      throw new Error(
-        `Typed fields were not found for "${rootType}", maybe you forgot to pass the option "typeFields" or is it incomplete? Your typeFields is ${JSON.stringify(
-          mappers || {}
-        )}`
-      );
-    }
-    return mapper;
-  },
-  isSubtype(type, path) {
-    const value = this.ofType(type)[path];
-    return (
-      typeof value === 'string' && value.indexOf(PREFIX_PATH_TO_MARK) === 0
-    );
-  },
-  getSubtype(type, path) {
-    const value = this.ofType(type)[path];
-    return value.substr(PREFIX_PATH_TO_MARK.length);
-  },
-});
+const PACKAGE_NAME = 'quave:collections';
+const settings = getSettings({ packageName: PACKAGE_NAME });
+
+const { isVerbose } = settings;
 
 export const Types = {
   scalarAndEjson(type) {
@@ -38,59 +19,60 @@ export const Types = {
   },
 };
 
-const TypedFunc = mappers => {
-  const mapperFunc = MapperFunc(mappers);
-  return {
-    lookForTypesAndApply(rootType, obj, consumeType) {
-      if (obj) {
-        const transformer = mapperFunc.ofType(rootType);
-
-        Object.entries(transformer).forEach(([key, value]) => {
-          if (!(key in obj)) {
-            return;
-          }
-          if (!mapperFunc.isSubtype(rootType, key)) {
-            if (Array.isArray(value)) {
-              // eslint-disable-next-line no-param-reassign
-              obj[key] = obj[key].map(v => consumeType(value[0], v));
-            } else {
-              // eslint-disable-next-line no-param-reassign
-              obj[key] = consumeType(value, obj[key]);
-            }
-          } else {
-            const subtype = mapperFunc.getSubtype(rootType, key);
-            const arr = Array.isArray(obj[key]) ? obj[key] : [obj[key]];
-            const newArr = [];
-            for (let i = 0; i < arr.length; i++) {
-              const v = { ...arr[i] };
-              newArr.push(v);
-              this.lookForTypesAndApply(subtype, v, consumeType);
-            }
-            // eslint-disable-next-line no-param-reassign
-            obj[key] = Array.isArray(obj[key]) ? newArr : newArr[0];
-          }
-        });
+const lookForTypesAndApply = (definition, obj, consumeType) => {
+  if (obj) {
+    Object.entries(definition.fields).forEach(([key, value]) => {
+      if (!(key in obj)) {
+        return;
       }
-      return obj;
-    },
-    onPersistCollection(rootType, obj) {
-      return this.lookForTypesAndApply(rootType, obj, (parser, value) =>
-        parser.toPersist(value)
-      );
-    },
-    onLoadFromCollection(rootType, obj) {
-      return this.lookForTypesAndApply(rootType, obj, (parser, value) =>
-        parser.fromPersisted(value)
-      );
-    },
-  };
+      if (!EJSON._getTypes()[value.typeName]) {
+        return;
+      }
+
+      // is not a subtype
+      if (!value.fields) {
+        if (Array.isArray(value)) {
+          // eslint-disable-next-line no-param-reassign
+          obj[key] = obj[key].map(v => consumeType(value[0].customType, v));
+        } else {
+          // eslint-disable-next-line no-param-reassign
+          obj[key] = consumeType(value.customType, obj[key]);
+        }
+      } else {
+        const subtype = value;
+        const arr = Array.isArray(obj[key]) ? obj[key] : [obj[key]];
+        const newArr = [];
+        for (let i = 0; i < arr.length; i++) {
+          const v = { ...arr[i] };
+          newArr.push(v);
+          lookForTypesAndApply(subtype, v, consumeType);
+        }
+        // eslint-disable-next-line no-param-reassign
+        obj[key] = Array.isArray(obj[key]) ? newArr : newArr[0];
+      }
+    });
+  }
+  return obj;
 };
 
+const onPersistCollection = (definition, obj) => {
+  return lookForTypesAndApply(definition, obj, (parser, value) => {
+    return parser.toPersist(value);
+  });
+};
+
+const onLoadFromCollection = (definition, obj) =>
+  lookForTypesAndApply(definition, obj, (parser, value) =>
+    parser.fromPersisted(value)
+  );
+
 export const TypedCollection = {
-  createTypedCollection: (name, rootType, opts) => {
-    const typedFunc = TypedFunc((opts || {}).typeFields || {});
+  createTypedCollection: (name, definition, opts) => {
+    if (!definition) {
+      throw new Error(`"definition" option was not found for "${name}"`);
+    }
     const collection = new Mongo.Collection(name, {
-      transform: obj => typedFunc.onLoadFromCollection(rootType, obj),
+      transform: obj => onLoadFromCollection(definition, obj),
     });
     if (!collection.before) {
       console.warn(
@@ -99,10 +81,10 @@ export const TypedCollection = {
     } else {
       // registerHooks
       collection.before.insert((_, obj) => {
-        typedFunc.onPersistCollection(rootType, obj);
+        onPersistCollection(definition, obj);
       });
       collection.before.update((userId, doc, fields, set) => {
-        typedFunc.onPersistCollection(rootType, set.$set);
+        onPersistCollection(definition, set.$set);
       });
     }
 
