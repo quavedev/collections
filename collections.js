@@ -47,9 +47,9 @@ const getDbCollection = ({ name, definition, helpers, instance }) => {
 };
 
 export const createCollection = ({
-  name,
   definition,
-  schema,
+  name: nameParam,
+  schema: schemaParam,
   collection = {},
   helpers = {},
   apply = null,
@@ -57,6 +57,9 @@ export const createCollection = ({
   instance = null,
 }) => {
   try {
+
+    const schema = definition ? definition.toSimpleSchema() : schemaParam;
+    const name = definition ? definition.pluralNameCamelCase : nameParam;
     if (isVerbose) {
       console.log(`${PACKAGE_NAME} ${name} settings`, settings);
     }
@@ -83,7 +86,6 @@ export const createCollection = ({
     }
 
     Object.assign(dbCollection, compose(...composers)(collection));
-
     if (schema) {
       if (!dbCollection.attachSchema) {
         throw new Error(
@@ -92,6 +94,7 @@ export const createCollection = ({
       }
       dbCollection.attachSchema(schema);
     }
+    dbCollection.definition = definition;
     return dbCollection;
   } catch (e) {
     console.error(

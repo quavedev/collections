@@ -1,6 +1,6 @@
 Package.describe({
   name: 'quave:collections',
-  version: '0.0.4',
+  version: '1.0.0',
   summary: 'Utility package to create Meteor collections in a standard way',
   git: 'https://github.com/quavedev/collections',
 });
