@@ -99,7 +99,7 @@ export const createCollection = ({
   } catch (e) {
     console.error(
       `An error has happened when your collection${
-        name ? ` "${name}"` : ''
+        nameParam ? ` "${nameParam}"` : ''
       } was being created.`,
       e
     );
