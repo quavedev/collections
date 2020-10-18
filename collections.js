@@ -21,7 +21,7 @@ const compose = (...funcs) =>
     arg => arg
   );
 
-const getDbCollection = ({ name, definition, helpers, instance }) => {
+const getDbCollection = ({ name, definition, helpers, instance, options }) => {
   if (definition) {
     if (instance) {
       throw new Error("dbCollection is already defined, type can't be applied");
@@ -33,7 +33,7 @@ const getDbCollection = ({ name, definition, helpers, instance }) => {
   }
   let dbCollection = instance;
   if (!dbCollection) {
-    dbCollection = new Mongo.Collection(name);
+    dbCollection = new Mongo.Collection(name, options);
   }
   if (helpers && Object.keys(helpers).length) {
     if (!dbCollection.helpers) {
@@ -55,6 +55,7 @@ export const createCollection = ({
   apply = null,
   composers = [],
   instance = null,
+  options = {},
 }) => {
   try {
 
@@ -79,6 +80,7 @@ export const createCollection = ({
       definition,
       helpers,
       instance,
+      options,
     });
 
     if (apply) {

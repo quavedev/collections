@@ -162,6 +162,26 @@ const { items, pagination } = StoresCollection.getPaginated({
 });
 ```
 
+### Options
+Second argument for the default [collections constructor](https://docs.meteor.com/api/collections.html#Mongo-Collection).
+Example defining a transform function.
+```javascript
+const transform = doc => ({
+  ...doc,
+  get user() {
+    return Meteor.users.findOne(this.userId);
+  },
+});
+
+export const PlayersCollection = createCollection({
+  name: 'players',
+  schema,
+  options: {
+    transform,
+  },
+});
+```
+
 ### Meteor.users
 
 Extending Meteor.users, also using `collection`, `helpers`, `composers`, `apply`.
