@@ -189,14 +189,14 @@ Extending Meteor.users, also using `collection`, `helpers`, `composers`, `apply`
 You can use all these options also with `name` instead of `instance`.
 
 ```javascript
-import { createCollection } from 'meteor/quave:collections';
+import {createCollection} from 'meteor/quave:collections';
 
 export const UsersCollection = createCollection({
   instance: Meteor.users,
-  schema: UserSchema,
+  schema: UserTypeDef,
   collection: {
     isAdmin(userId) {
-      const user = userId && this.findOne(userId, { fields: { profiles: 1 } });
+      const user = userId && this.findOne(userId, {fields: {profiles: 1}});
       return (
         user && user.profiles && user.profiles.includes(UserProfile.ADMIN.name)
       );
@@ -215,7 +215,7 @@ export const UsersCollection = createCollection({
   },
   composers: [paginable],
   apply(coll) {
-    coll.after.insert(userAfterInsert(coll), { fetchPrevious: false });
+    coll.after.insert(userAfterInsert(coll), {fetchPrevious: false});
     coll.after.update(userAfterUpdate);
   },
 });
