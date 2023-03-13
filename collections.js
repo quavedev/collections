@@ -87,7 +87,8 @@ export const createCollection = ({
       apply(dbCollection);
     }
 
-    Object.assign(dbCollection, compose(...composers)(collection));
+    Object.assign(dbCollection, collection);
+    Object.assign(dbCollection, compose(...composers)(dbCollection));
     if (schema) {
       if (!dbCollection.attachSchema) {
         throw new Error(
