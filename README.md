@@ -162,6 +162,80 @@ const { items, pagination } = StoresCollection.getPaginated({
 });
 ```
 
+A different example, a little bit more complex, overriding a few methods of the original collection in order to implement a soft removal (this example only works in `quave:collections@1.1.0` or later).
+
+```javascript
+import { createCollection } from 'meteor/quave:collections';
+
+const toSelector = (filter) => {
+  if (typeof filter === 'string') {
+    return { _id: filter };
+  }
+  return filter;
+};
+
+const filterOptions = (options = {}) => {
+  if (options.ignoreSoftRemoved) {
+    return {};
+  }
+  return { isRemoved: { $ne: true } };
+};
+
+export const softRemoval = (collection) => {
+  const originalFind = collection.find.bind(collection);
+  const originalFindOne = collection.findOne.bind(collection);
+  const originalUpdate = collection.update.bind(collection);
+  const originalRemove = collection.remove.bind(collection);
+  return Object.assign({}, collection, {
+    find(selector, options) {
+      return originalFind(
+        {
+          ...toSelector(selector),
+          ...filterOptions(options),
+        },
+        options
+      );
+    },
+    findOne(selector, options) {
+      return originalFindOne(
+        {
+          ...toSelector(selector),
+          ...filterOptions(options),
+        },
+        options
+      );
+    },
+    remove(selector, options = {}) {
+      if (options.hardRemove) {
+        return originalRemove(selector);
+      }
+      return originalUpdate(
+        {
+          ...toSelector(selector),
+        },
+        {
+          $set: {
+            ...(options.$set || {}),
+            isRemoved: true,
+            removedAt: new Date(),
+          },
+        },
+        { multi: true }
+      );
+    },
+  });
+};
+export const SourcesCollection = createCollection({
+  name: 'sources',
+  composers: [softRemoval],
+});
+
+// usage example
+SourcesCollection.remove({ _id: 'KEFemSmeZ9EpNfkcH' }); // this will use the soft removal, it means, this setting `isRemoved` to true
+SourcesCollection.remove({ _id: 'KEFemSmeZ9EpNfkcH' }, { hardRemove: true }); // this will remove in the database
+
+```
+
 ### Options
 Second argument for the default [collections constructor](https://docs.meteor.com/api/collections.html#Mongo-Collection).
 Example defining a transform function.
