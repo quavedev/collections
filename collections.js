@@ -5,6 +5,9 @@ import { getSettings } from 'meteor/quave:settings';
 
 import { CustomTypeCollection } from './CustomTypeCollection';
 
+// to load attachSchema
+import './schema';
+
 const PACKAGE_NAME = 'quave:collections';
 const settings = getSettings({ packageName: PACKAGE_NAME });
 
@@ -90,11 +93,6 @@ export const createCollection = ({
     Object.assign(dbCollection, collection);
     Object.assign(dbCollection, compose(...composers)(dbCollection));
     if (schema) {
-      if (!dbCollection.attachSchema) {
-        throw new Error(
-          "attachSchema function is not present in your collection so you can't use 'schema' option, use https://github.com/Meteor-Community-Packages/meteor-collection2 if you want to have it."
-        );
-      }
       dbCollection.attachSchema(schema);
     }
     dbCollection.definition = definition;
