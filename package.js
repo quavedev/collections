@@ -1,6 +1,6 @@
 Package.describe({
   name: 'quave:collections',
-  version: '1.1.0',
+  version: '2.0.0',
   summary: 'Utility package to create Meteor collections in a standard way',
   git: 'https://github.com/quavedev/collections',
 });
@@ -12,18 +12,20 @@ Npm.depends({
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom('2.13.3');
+  api.versionsFrom('METEOR@3.0-alpha.18');
 
-  api.use('mongo');
+  api.use([
+    'ecmascript@0.16.7||0.16.8-alpha300.18',
+    'mongo@1.0.0||2.0.0||2.0.0-alpha300.17',
+    'minimongo@1.9.3||2.0.0-alpha300.18',
+    'ejson@1.1.3||1.1.4-alpha300.18'
+  ]);
   api.imply('mongo');
-  api.use('minimongo');
-  api.use('ejson');
+
   api.use('raix:eventemitter@1.0.0');
-  api.use('ecmascript');
   api.use('tmeasday:check-npm-versions@1.0.2');
+
   api.use('quave:settings@1.0.0');
 
   api.mainModule('collections.js');
-
-  api.export('Collection2');
 });

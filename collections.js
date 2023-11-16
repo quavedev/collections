@@ -3,8 +3,6 @@ import { Mongo } from 'meteor/mongo';
 
 import { getSettings } from 'meteor/quave:settings';
 
-import { CustomTypeCollection } from './CustomTypeCollection';
-
 // to load attachSchema
 import './schema';
 
@@ -24,16 +22,7 @@ const compose = (...funcs) =>
     arg => arg
   );
 
-const getDbCollection = ({ name, definition, helpers, instance, options }) => {
-  if (definition) {
-    if (instance) {
-      throw new Error("dbCollection is already defined, type can't be applied");
-    }
-
-    return CustomTypeCollection.createTypedCollection(name, definition, {
-      helpers,
-    });
-  }
+const getDbCollection = ({ name, helpers, instance, options }) => {
   let dbCollection = instance;
   if (!dbCollection) {
     dbCollection = new Mongo.Collection(name, options);
@@ -50,9 +39,8 @@ const getDbCollection = ({ name, definition, helpers, instance, options }) => {
 };
 
 export const createCollection = ({
-  definition,
-  name: nameParam,
-  schema: schemaParam,
+  name,
+  schema,
   collection = {},
   helpers = {},
   apply = null,
@@ -61,9 +49,6 @@ export const createCollection = ({
   options = {},
 }) => {
   try {
-
-    const schema = definition ? definition.toSimpleSchema() : schemaParam;
-    const name = definition ? definition.pluralNameCamelCase : nameParam;
     if (isVerbose) {
       console.log(`${PACKAGE_NAME} ${name} settings`, settings);
     }
@@ -80,7 +65,6 @@ export const createCollection = ({
     }
     const dbCollection = getDbCollection({
       name,
-      definition,
       helpers,
       instance,
       options,
@@ -95,12 +79,11 @@ export const createCollection = ({
     if (schema) {
       dbCollection.attachSchema(schema);
     }
-    dbCollection.definition = definition;
     return dbCollection;
   } catch (e) {
     console.error(
       `An error has happened when your collection${
-        nameParam ? ` "${nameParam}"` : ''
+        name ? ` "${name}"` : ''
       } was being created.`,
       e
     );
