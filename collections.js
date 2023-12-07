@@ -1,14 +1,14 @@
-import { Meteor } from "meteor/meteor";
-import { Mongo } from "meteor/mongo";
+import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
 
-import { getSettings } from "meteor/quave:settings";
+import { getSettings } from 'meteor/quave:settings';
 
 // to load helpers
-import "./helpers";
+import './helpers';
 // to load attachSchema
-import "./schema";
+import './schema';
 
-const PACKAGE_NAME = "quave:collections";
+const PACKAGE_NAME = 'quave:collections';
 const settings = getSettings({ packageName: PACKAGE_NAME });
 
 const { isServerOnly, isVerbose } = settings;
@@ -23,7 +23,7 @@ const compose = (...funcs) =>
     (a, b) =>
       (...args) =>
         a(b(...args)),
-    (arg) => arg,
+    (arg) => arg
   );
 
 const getDbCollection = ({ name, helpers, instance, options }) => {
@@ -54,12 +54,12 @@ export const createCollection = ({
 
     if (!name && !instance) {
       throw new Error(
-        "The option 'name' is required, unless you are using the option 'instance' that is not your case :).",
+        "The option 'name' is required, unless you are using the option 'instance' that is not your case :)."
       );
     }
     if (Meteor.isClient && isServerOnly) {
       throw new Error(
-        "Collections are not allowed in the client, you can disable this changing the setting `isServerOnly`",
+        'Collections are not allowed in the client, you can disable this changing the setting `isServerOnly`'
       );
     }
     const dbCollection = getDbCollection({
@@ -82,9 +82,9 @@ export const createCollection = ({
   } catch (e) {
     console.error(
       `An error has happened when your collection${
-        name ? ` "${name}"` : ""
+        name ? ` "${name}"` : ''
       } was being created.`,
-      e,
+      e
     );
     throw e;
   }

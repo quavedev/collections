@@ -3,7 +3,7 @@ Mongo.Collection.prototype.helpers = function (helpers) {
 
   if (self._transform && !self._helpers) {
     throw new Meteor.Error(
-      `Can't apply helpers to '${self._name}' a transform function already exists!`,
+      `Can't apply helpers to '${self._name}' a transform function already exists!`
     );
   }
 

@@ -1,28 +1,28 @@
-import { Mongo } from "meteor/mongo";
+import { Mongo } from 'meteor/mongo';
 
 const options = { _suppressSameNameError: true };
-Tinytest.addAsync("works", async function (test) {
+Tinytest.addAsync('works', async function (test) {
   const Books = new Mongo.Collection(`books`, options);
   const Authors = new Mongo.Collection(`authors`, options);
 
   const author1 = await Authors.insertAsync({
-    firstName: "Charles",
-    lastName: "Darwin",
+    firstName: 'Charles',
+    lastName: 'Darwin',
   });
 
   const author2 = await Authors.insertAsync({
-    firstName: "Carl",
-    lastName: "Sagan",
+    firstName: 'Carl',
+    lastName: 'Sagan',
   });
 
   const book1 = await Books.insertAsync({
     authorId: author1,
-    name: "On the Origin of Species",
+    name: 'On the Origin of Species',
   });
 
   const book2 = await Books.insertAsync({
     authorId: author2,
-    name: "Contact",
+    name: 'Contact',
   });
 
   Books.helpers({
@@ -33,7 +33,7 @@ Tinytest.addAsync("works", async function (test) {
 
   // We should be able to apply more if we wish
   Books.helpers({
-    foo: "bar",
+    foo: 'bar',
   });
 
   Authors.helpers({
@@ -48,12 +48,12 @@ Tinytest.addAsync("works", async function (test) {
   const bookFirst = await Books.findOneAsync(book1);
   const authorFirst = await bookFirst?.author();
 
-  test.equal(authorFirst?.firstName, "Charles");
-  test.equal(bookFirst?.foo, "bar");
+  test.equal(authorFirst?.firstName, 'Charles');
+  test.equal(bookFirst?.foo, 'bar');
 
   const bookSecond = await Books.findOneAsync(book2);
   const authorSecond = await bookSecond?.author();
-  test.equal(authorSecond?.fullName(), "Carl Sagan");
+  test.equal(authorSecond?.fullName(), 'Carl Sagan');
 
   const authorThird = await Authors.findOneAsync(author1);
   const booksThird = await authorThird?.books();
@@ -61,13 +61,13 @@ Tinytest.addAsync("works", async function (test) {
 });
 
 Tinytest.addAsync(
-  "throw error if transform function already exists",
+  'throw error if transform function already exists',
   async function (test) {
     const Author = function (doc) {
       return Object.assign(this, doc);
     };
 
-    Author.prototype.fullName = "Charles Darwin";
+    Author.prototype.fullName = 'Charles Darwin';
 
     const Authors = new Mongo.Collection(`authors`, {
       ...options,
@@ -83,5 +83,5 @@ Tinytest.addAsync(
         },
       });
     });
-  },
+  }
 );
