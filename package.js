@@ -29,3 +29,14 @@ Package.onUse(function(api) {
 
   api.mainModule('collections.js');
 });
+
+Package.onTest(function(api) {
+  api.use([
+    'ecmascript',
+    'tinytest',
+    'insecure',
+    'autopublish',
+    'mongo']);
+
+  api.addFiles(['helpers.js', 'helpers-test.js']);
+});
