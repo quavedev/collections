@@ -3,7 +3,10 @@ import { Mongo } from 'meteor/mongo';
 
 import { getSettings } from 'meteor/quave:settings';
 
-import { CustomTypeCollection } from './CustomTypeCollection';
+// to load helpers
+import './helpers';
+// to load attachSchema
+import './schema';
 
 const PACKAGE_NAME = 'quave:collections';
 const settings = getSettings({ packageName: PACKAGE_NAME });
@@ -17,39 +20,26 @@ const { isServerOnly, isVerbose } = settings;
  */
 const compose = (...funcs) =>
   funcs.reduce(
-    (a, b) => (...args) => a(b(...args)),
-    arg => arg
+    (a, b) =>
+      (...args) =>
+        a(b(...args)),
+    (arg) => arg
   );
 
-const getDbCollection = ({ name, definition, helpers, instance, options }) => {
-  if (definition) {
-    if (instance) {
-      throw new Error("dbCollection is already defined, type can't be applied");
-    }
-
-    return CustomTypeCollection.createTypedCollection(name, definition, {
-      helpers,
-    });
-  }
+const getDbCollection = ({ name, helpers, instance, options }) => {
   let dbCollection = instance;
   if (!dbCollection) {
     dbCollection = new Mongo.Collection(name, options);
   }
-  if (helpers && Object.keys(helpers).length) {
-    if (!dbCollection.helpers) {
-      throw new Error(
-        "You need to add this package https://github.com/dburles/meteor-collection-helpers to use 'helpers'"
-      );
-    }
+  if (helpers) {
     dbCollection.helpers(helpers);
   }
   return dbCollection;
 };
 
 export const createCollection = ({
-  definition,
-  name: nameParam,
-  schema: schemaParam,
+  name,
+  schema,
   collection = {},
   helpers = {},
   apply = null,
@@ -58,9 +48,6 @@ export const createCollection = ({
   options = {},
 }) => {
   try {
-
-    const schema = definition ? definition.toSimpleSchema() : schemaParam;
-    const name = definition ? definition.pluralNameCamelCase : nameParam;
     if (isVerbose) {
       console.log(`${PACKAGE_NAME} ${name} settings`, settings);
     }
@@ -77,7 +64,6 @@ export const createCollection = ({
     }
     const dbCollection = getDbCollection({
       name,
-      definition,
       helpers,
       instance,
       options,
@@ -90,19 +76,13 @@ export const createCollection = ({
     Object.assign(dbCollection, collection);
     Object.assign(dbCollection, compose(...composers)(dbCollection));
     if (schema) {
-      if (!dbCollection.attachSchema) {
-        throw new Error(
-          "attachSchema function is not present in your collection so you can't use 'schema' option, use https://github.com/Meteor-Community-Packages/meteor-collection2 if you want to have it."
-        );
-      }
       dbCollection.attachSchema(schema);
     }
-    dbCollection.definition = definition;
     return dbCollection;
   } catch (e) {
     console.error(
       `An error has happened when your collection${
-        nameParam ? ` "${nameParam}"` : ''
+        name ? ` "${name}"` : ''
       } was being created.`,
       e
     );
