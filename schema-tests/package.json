@@ -1,0 +1,20 @@
+{
+  "name": "tests",
+  "private": true,
+  "scripts": {
+    "test": "TEST_BROWSER_DRIVER=puppeteer meteor test --once --driver-package meteortesting:mocha --raw-logs",
+    "test:watch": "TEST_BROWSER_DRIVER=puppeteer TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --raw-logs",
+    "test:watch:browser": "TEST_WATCH=1 meteor test --driver-package meteortesting:mocha --raw-logs"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.23.5",
+    "babel-polyfill": "^6.26.0",
+    "jquery": "^3.7.1",
+    "meteor-node-stubs": "^1.2.7",
+    "simpl-schema": "^3.4.1"
+  },
+  "devDependencies": {
+    "expect": "^29.7.0",
+    "puppeteer": "^19.11.1"
+  }
+}

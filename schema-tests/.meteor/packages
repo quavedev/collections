@@ -1,0 +1,22 @@
+meteor-base
+mobile-experience
+mongo
+blaze-html-templates
+reactive-var
+jquery
+tracker
+
+standard-minifier-css
+standard-minifier-js
+es5-shim
+ecmascript
+shell-server
+
+autopublish
+insecure
+
+dynamic-import
+# Specific sub dep version to get this version of puppeteer https://github.com/Meteor-Community-Packages/meteor-browser-tests/commit/00ced01ead0e8037a8b95f69f7c83086176d3716
+meteortesting:browser-tests@=1.5.3
+meteortesting:mocha
+quave:collections
