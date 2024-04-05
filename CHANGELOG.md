@@ -1,5 +1,10 @@
 ## CHANGELOG
 
+### 2.0.1 (2023-03-22)
+
+- Fixes `Exception running scheduled job TypeError: context.invalidKeys is not a function`
+- Removes `import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';` due to old typescript dependency
+
 ### 2.0.0 (2023-11-15)
 
 - Compatible with Meteor 3.0 (hooks and helpers are still not supported tho)

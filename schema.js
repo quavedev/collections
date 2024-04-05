@@ -4,7 +4,6 @@
 import { EventEmitter } from 'meteor/raix:eventemitter';
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';
 import { EJSON } from 'meteor/ejson';
 import isEmpty from 'lodash.isempty';
 import isEqual from 'lodash.isequal';
@@ -56,7 +55,6 @@ function flattenSelector(selector) {
 
   return obj;
 }
-checkNpmVersions({ 'simpl-schema': '>=0.0.0' });
 
 const SimpleSchema = require('simpl-schema').default;
 
@@ -673,13 +671,14 @@ function doValidate(
   }
 }
 
-function getErrorObject(context, appendToMessage = '') {
+function getErrorObject(context, appendToMessage = '', code) {
   let message;
   const invalidKeys =
     typeof context.validationErrors === 'function'
       ? context.validationErrors()
-      : context.invalidKeys();
-  if (invalidKeys.length) {
+      : context.invalidKeys?.();
+
+  if (invalidKeys?.length) {
     const firstErrorKey = invalidKeys[0].name;
     const firstErrorMessage = context.keyErrorMessage(firstErrorKey);
 
@@ -697,6 +696,7 @@ function getErrorObject(context, appendToMessage = '') {
   const error = new Error(message);
   error.invalidKeys = invalidKeys;
   error.validationContext = context;
+  error.code = code;
   // If on the server, we add a sanitized error, too, in case we're
   // called from a method.
   if (Meteor.isServer) {
